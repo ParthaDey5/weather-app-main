@@ -181,9 +181,9 @@ function HeroSection({
         </div>
         {/* daily forecast */}
         <div className="w-full desktop:h-[13vw] h-[100vw] flex flex-col desktop:gap-[1vw] gap-[3vw]">
-          <h4 className="smallTxt font-medium desktop:tracking-[0.05vw]">
+          <h3 className="smallTxt font-medium desktop:tracking-[0.05vw]">
             Daily forecast
-          </h4>
+          </h3>
           <section className="bg-Neutral700 w-full h-[220vw] grid desktop:grid-cols-7 grid-cols-3 desktop:gap-[1.1vw] gap-[3vw] desktop:rounded-[0.7vw] rounded-[3vw]">
             {apiData && !loading
               ? formattedWeekdays.map((weekday, i) => (

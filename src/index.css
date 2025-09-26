@@ -1,0 +1,169 @@
+@config "../tailwind.config.js";
+@import "tailwindcss";
+
+@layer utilities {
+  .dropdown-opened {
+    transform: scaleY(1);
+    transform-origin: top; /* 👈 this is the key */
+    transition: 0.3s ease-in-out;
+  }
+
+  .dropdown-closed {
+    transform: scaleY(0);
+    transform-origin: top; /* 👈 keep it consistent */
+    transition: 0.3s ease-in-out;
+  }
+}
+
+@layer base {
+  @font-face {
+    font-family: "DM Sans";
+    src: url("/assets/fonts/DM_Sans/DMSans-VariableFont_opsz,wght.ttf")
+      format("truetype-variations");
+    font-weight: 100 900; /* full weight range in the variable font */
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "DM Sans";
+    src: url("/assets/fonts/DM_Sans/DMSans-Italic-VariableFont_opsz,wght.ttf")
+      format("truetype-variations");
+    font-weight: 100 900;
+    font-style: italic;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Bricolage Grotesque";
+    src: url("/assets/fonts/Bricolage_Grotesque/BricolageGrotesque-VariableFont_opsz,wdth,wght.ttf")
+      format("truetype-variations");
+    font-weight: 100 900; /* full weight range in the variable font */
+    font-style: normal;
+    font-display: swap;
+  }
+  button {
+    @apply !font-dm !bg-Blue700 !text-Neutral0 !font-medium desktop:w-[7.5vw] w-full desktop:h-[3.8vw] h-[13vw] desktop:!rounded-[0.7vw] !rounded-[3vw] cursor-pointer
+  desktop:mt-0 mt-[2vw];
+  }
+  input {
+    @apply desktop:mt-0 mt-[10vw] !font-dm !flex items-center desktop:h-[3.8vw] h-[13vw] desktop:w-[32vw] w-full cursor-pointer desktop:pl-[5vw] pl-[14vw] desktop:!rounded-[0.8vw] !rounded-[3vw] !bg-Neutral700;
+  }
+  input::placeholder {
+    @apply !my-auto font-dm text-Neutral200;
+  }
+  .extraSmall {
+    @apply cursor-pointer text-Neutral0 !font-dm;
+  }
+  .bigTxt {
+    @apply text-Neutral0 !font-dm;
+  }
+  .smallTxt,
+  .mediumTxt,
+  .smallTxt2 {
+    @apply !font-dm;
+  }
+
+  .ultraSmall {
+    @apply text-Neutral0 !font-dm;
+  }
+  .extraBig {
+    @apply text-Neutral0 desktop:tracking-[0.2vw] !font-dm font-semibold italic;
+  }
+  .pointer {
+    @apply cursor-pointer;
+  }
+  nav {
+    @apply w-full flex items-center justify-between desktop:mb-[5vw];
+  }
+  h1 {
+    @apply !text-center w-full font-brico !font-semibold tracking-[0.1vw];
+  }
+  h2 {
+    @apply font-dm !font-semibold tracking-[0.1vw];
+  }
+  .mediumBig {
+    @apply font-brico font-semibold tracking-[0.1vw];
+  }
+  h4,
+  p,
+  span,
+  li {
+    @apply font-dm;
+  }
+  li {
+    @apply bg-Neutral700 desktop:mt-[0.4vw] mt-[1vw] desktop:h-[2.1vw] h-[7vw] flex items-center hover:bg-Neutral600 cursor-pointer;
+  }
+  h5 {
+    @apply font-dm  !font-medium;
+  }
+  @media (min-width: 855px) and (max-width: 2560px) {
+    h1 {
+      font-size: calc(20px + (100 - 20) * ((100vw - 855px) / 1705)) !important;
+    }
+    h2 {
+      font-size: calc(10px + (51 - 10) * ((100vw - 855px) / 1705)) !important;
+    }
+    .mediumTxt {
+      font-size: calc(7px + (30 - 7) * ((100vw - 855px) / 1705)) !important;
+    }
+    ::placeholder {
+      font-size: calc(10px + (34 - 10) * ((100vw - 855px) / 1705)) !important;
+    }
+    .smallTxt {
+      font-size: calc(10px + (34 - 10) * ((100vw - 855px) / 1705)) !important;
+    }
+    .smallTxt2 {
+      font-size: calc(7px + (30 - 7) * ((100vw - 855px) / 1705)) !important;
+    }
+    .bigTxt {
+      font-size: calc(7px + (50 - 7) * ((100vw - 855px) / 1705)) !important;
+    }
+    .mediumBig {
+      font-size: calc(20px + (130 - 20) * ((100vw - 855px) / 1705)) !important;
+    }
+    .extraBig {
+      font-size: calc(40px + (160 - 40) * ((100vw - 855px) / 1705)) !important;
+    }
+    .extraSmall {
+      font-size: calc(6px + (29 - 6) * ((100vw - 855px) / 1705)) !important;
+    }
+    .ultraSmall {
+      font-size: calc(6px + (27 - 6) * ((100vw - 855px) / 1705)) !important;
+    }
+  }
+  @media (max-width: 854px) {
+    h1 {
+      font-size: calc(2px + (117 - 2) * ((100vw - 0px) / 854)) !important;
+    }
+    h2 {
+      font-size: calc(1px + (45 - 1) * ((100vw - 0px) / 854)) !important;
+    }
+
+    ::placeholder {
+      font-size: calc(1px + (35 - 1) * ((100vw - 0px) / 854)) !important;
+    }
+
+    .smallTxt {
+      font-size: calc(1px + (35 - 1) * ((100vw - 0px) / 854)) !important;
+    }
+    .smallTxt2 {
+      font-size: calc(1px + (28 - 1) * ((100vw - 0px) / 854)) !important;
+    }
+    .bigTxt {
+      font-size: calc(2px + (45 - 2) * ((100vw - 0px) / 854)) !important;
+    }
+    .mediumBig {
+      font-size: calc(3px + (50 - 3) * ((100vw - 0px) / 854)) !important;
+    }
+    .extraBig {
+      font-size: calc(3px + (133 - 3) * ((100vw - 0px) / 854)) !important;
+    }
+    .extraSmall {
+      font-size: calc(1px + (22 - 1) * ((100vw - 0px) / 854)) !important;
+    }
+    .ultraSmall {
+      font-size: calc(1px + (24 - 1) * ((100vw - 0px) / 854)) !important;
+    }
+  }
+    
+}

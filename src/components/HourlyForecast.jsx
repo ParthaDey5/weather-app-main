@@ -49,7 +49,7 @@ function HourlyForecast({
                 ? Weekday
                 : "-"}
             </p>{" "}
-            <Dropdown className={`transition-transform duration-300 ease-out desktop:w-[0.7vw] w-[2.6vw] h-fit ${dropdown2? "rotate-180":""}`} />
+            <Dropdown className={`transition-transform duration-400 ease desktop:w-[0.7vw] w-[2.6vw] h-fit ${dropdown2? "rotate-180":""}`} />
           </span>
           
             <div className={`relative z-10  origin-top transition-transform duration-400 ${

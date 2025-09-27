@@ -224,7 +224,7 @@ function App() {
               <Units className="desktop:w-[1vw] w-[3.2vw] h-fit pointer !my-auto" />{" "}
               Units
               <Dropdown
-                className={` transition-transform duration-300 ease-out desktop:w-[0.7vw] w-[2.6vw] h-fit pointer ${
+                className={` transition-transform duration-400 ease desktop:w-[0.7vw] w-[2.6vw] h-fit pointer ${
                   dropdown1 ? "rotate-180" : ""
                 }`}
               />

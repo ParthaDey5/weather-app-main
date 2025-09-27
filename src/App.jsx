@@ -7,7 +7,6 @@ import Retry from "./assets/images/icon-retry.svg?react";
 import Units from "./assets/images/icon-units.svg?react";
 import Search from "./assets/images/icon-search.svg?react";
 import Loading from "./assets/images/icon-loading.svg?react";
-import { motion } from "framer-motion";
 import "./App.css";
 import HourlyForecast from "./components/HourlyForecast";
 import HeroSection from "./components/HeroSection";
@@ -24,7 +23,6 @@ function App() {
   const [kmh, setKmh] = useState(true);
   const [dropdown1, setdropdown1] = useState(false);
   const [dropdown2, setdropdown2] = useState(false);
-
   const [city, setCity] = useState("");
   const [cityName, setCityName] = useState("");
   const [latitude, setLatitude] = useState("");
@@ -39,6 +37,8 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [City, setcity] = useState("");
   const [country, setCountry] = useState("");
+  const [query, setQuery] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
 
   const weatherCodeDaily = apiData?.daily.weather_code;
   const weatherCodeCurrent = apiData?.current.weather_code;
@@ -130,28 +130,31 @@ function App() {
   }, [cityName, City, fetchError, searchInProgress]);
 
   useEffect(() => {
-    if (latitude && longitude && !loading) {
-      fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code&hourly=temperature_2m,relative_humidity_2m,precipitation,weather_code&current=temperature_2m,apparent_temperature,precipitation,relative_humidity_2m,wind_speed_10m,weather_code&timezone=auto&current=is_day${
-          celsious ? "" : "&temperature_unit=fahrenheit"
-        }${kmh ? "" : "&wind_speed_unit=mph"}${
-          millimeters ? "" : "&precipitation_unit=inch"
-        }&format=json`
-      )
-        .then((res) => res.json())
-        .then((data) => {
-          setApitime(data.current.time);
-          setApparentTemperature(Math.round(data.current.apparent_temperature));
-          setTemperature(Math.round(data.current.temperature_2m)),
-            setWind(Math.round(data.current.wind_speed_10m)),
-            setHumidity(Math.round(data.current.relative_humidity_2m));
-          setPrecipitation(data.current.precipitation), setApiData(data);
-          setCurrentWindSpeedUnit(data.current_units.wind_speed_10m);
-          setCurrentPrecipitationUnit(data.current_units.precipitation);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    if (latitude && longitude) {
+      setTimeout(() => {
+        fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code&hourly=temperature_2m,relative_humidity_2m,precipitation,weather_code&current=temperature_2m,apparent_temperature,precipitation,relative_humidity_2m,wind_speed_10m,weather_code&timezone=auto&current=is_day${
+            celsious ? "" : "&temperature_unit=fahrenheit"
+          }${kmh ? "" : "&wind_speed_unit=mph"}${
+            millimeters ? "" : "&precipitation_unit=inch"
+          }&format=json`
+        )
+          .then((res) => res.json())
+          .then((data) => {
+            setApitime(data.current.time);
+            setApparentTemperature(Math.round(data.current.apparent_temperature));
+            setTemperature(Math.round(data.current.temperature_2m)),
+              setWind(Math.round(data.current.wind_speed_10m)),
+              setHumidity(Math.round(data.current.relative_humidity_2m));
+            setPrecipitation(data.current.precipitation), setApiData(data);
+            setCurrentWindSpeedUnit(data.current_units.wind_speed_10m);
+            setCurrentPrecipitationUnit(data.current_units.precipitation);
+          })
+          .catch((err) => {
+            console.log(err);
+          })  
+      }, 1000);
+      
     }
   }, [
     cityName,
@@ -164,6 +167,30 @@ function App() {
     millimeters,
     loading,
   ]);
+
+  const fetchCities = async (q) => {
+    if (q.length < 2) {
+      setSuggestions([]);
+      return;
+    }
+    const url = `https://wft-geo-db.p.rapidapi.com/v1/geo/cities?namePrefix=${query}&limit=5`;
+    const options = {
+      method: "GET",
+      headers: {
+        "x-rapidapi-host": "wft-geo-db.p.rapidapi.com",
+        "x-rapidapi-key": "e3e60a2ec5msh19c61c62e1a129ap1a1646jsn0ff8d34232ae",
+      },
+    };
+    try {
+      const response = await fetch(url, options);
+      const result = await response.json();
+      console.log(result.data);
+      setSuggestions(result.data);
+      console.log(suggestions);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const formattedWeekdays = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(apitime);
@@ -191,68 +218,67 @@ function App() {
             >
               <Units className="desktop:w-[1vw] w-[3.2vw] h-fit pointer !my-auto" />{" "}
               Units
-              <Dropdown className="desktop:w-[0.7vw] w-[2.6vw] h-fit pointer" />
+              <Dropdown className={` transition-transform duration-300 ease-out desktop:w-[0.7vw] w-[2.6vw] h-fit pointer ${dropdown1? "rotate-180": ""}`} />
             </span>
-            
-              <div className="relative z-50">
-                <section
-                  className={`desktop:rounded-[0.5vw] rounded-[2vw] bg-Neutral700 absolute right-0 desktop:w-[15vw] w-[55vw] origin-top transition-transform duration-500   ${
-                    dropdown1 ? "scale-y-100 ease-out" : "scale-y-0 ease"
-                  }`}
-                >
-                  <ul className="desktop:px-[1vw] px-[3vw] desktop:pt-[1vw] pt-[3vw]">
-                    <li className="smallTxt whitespace-nowrap cursor-auto">
-                      Switch to Imperial
-                    </li>
-                    <li className="hover:bg-Neutral600 text-Neutral200 smallTxt2 cursor-auto">
-                      Temperature
-                    </li>
-                    <li
-                      onClick={() => setCelsious(true)}
-                      className="flex justify-between hover:bg-Neutral600 smallTxt"
-                    >
-                      Celsius(°C){celsious && <Checkmark />}
-                    </li>
-                    <li
-                      onClick={() => setCelsious(false)}
-                      className="flex justify-between hover:bg-Neutral600 smallTxt"
-                    >
-                      Fahrenheit(°F) {!celsious && <Checkmark />}
-                    </li>
-                    <li className="hover:bg-Neutral600 text-Neutral200 smallTxt2 cursor-auto">
-                      Wind Speed
-                    </li>
-                    <li
-                      onClick={() => setKmh(true)}
-                      className="flex justify-between hover:bg-Neutral600 smallTxt"
-                    >
-                      km/h {kmh && <Checkmark />}
-                    </li>
-                    <li
-                      onClick={() => setKmh(false)}
-                      className="flex justify-between hover:bg-Neutral600 smallTxt"
-                    >
-                      mph{!kmh && <Checkmark />}
-                    </li>
-                    <li className="hover:bg-Neutral600 text-Neutral200 smallTxt2 cursor-auto">
-                      Precipitation
-                    </li>
-                    <li
-                      onClick={() => setMillimeters(!millimeters)}
-                      className="flex justify-between hover:bg-Neutral600 smallTxt"
-                    >
-                      Millimeters(mm){millimeters && <Checkmark />}
-                    </li>
-                    <li
-                      onClick={() => setMillimeters(!millimeters)}
-                      className="flex justify-between hover:bg-Neutral600 smallTxt"
-                    >
-                      Inches(in){!millimeters && <Checkmark />}
-                    </li>
-                  </ul>
-                </section>
-              </div>
-            
+
+            <div className="relative z-50">
+              <section
+                className={`desktop:rounded-[0.5vw] rounded-[2vw] bg-Neutral700 absolute right-0 desktop:w-[15vw] w-[55vw] origin-top transition-transform duration-500   ${
+                  dropdown1 ? "scale-y-100 ease-out" : "scale-y-0 ease"
+                }`}
+              >
+                <ul className="desktop:px-[1vw] px-[3vw] desktop:pt-[1vw] pt-[3vw]">
+                  <li className="smallTxt whitespace-nowrap cursor-auto">
+                    Switch to Imperial
+                  </li>
+                  <li className="hover:bg-Neutral600 text-Neutral200 smallTxt2 cursor-auto">
+                    Temperature
+                  </li>
+                  <li
+                    onClick={() => setCelsious(true)}
+                    className="flex justify-between hover:bg-Neutral600 smallTxt"
+                  >
+                    Celsius(°C){celsious && <Checkmark />}
+                  </li>
+                  <li
+                    onClick={() => setCelsious(false)}
+                    className="flex justify-between hover:bg-Neutral600 smallTxt"
+                  >
+                    Fahrenheit(°F) {!celsious && <Checkmark />}
+                  </li>
+                  <li className="hover:bg-Neutral600 text-Neutral200 smallTxt2 cursor-auto">
+                    Wind Speed
+                  </li>
+                  <li
+                    onClick={() => setKmh(true)}
+                    className="flex justify-between hover:bg-Neutral600 smallTxt"
+                  >
+                    km/h {kmh && <Checkmark />}
+                  </li>
+                  <li
+                    onClick={() => setKmh(false)}
+                    className="flex justify-between hover:bg-Neutral600 smallTxt"
+                  >
+                    mph{!kmh && <Checkmark />}
+                  </li>
+                  <li className="hover:bg-Neutral600 text-Neutral200 smallTxt2 cursor-auto">
+                    Precipitation
+                  </li>
+                  <li
+                    onClick={() => setMillimeters(!millimeters)}
+                    className="flex justify-between hover:bg-Neutral600 smallTxt"
+                  >
+                    Millimeters(mm){millimeters && <Checkmark />}
+                  </li>
+                  <li
+                    onClick={() => setMillimeters(!millimeters)}
+                    className="flex justify-between hover:bg-Neutral600 smallTxt"
+                  >
+                    Inches(in){!millimeters && <Checkmark />}
+                  </li>
+                </ul>
+              </section>
+            </div>
           </div>
         </nav>
       </section>
@@ -293,6 +319,8 @@ function App() {
                 type="text"
                 value={city}
                 onChange={(e) => {
+                  setQuery(e.target.value);
+                  fetchCities(e.target.value);
                   setCity(e.target.value),
                     setLoading(false),
                     setSearchInProgress(false);
@@ -313,6 +341,36 @@ function App() {
                 Search
               </button>
             </section>
+            {suggestions?.length > 0 && (
+  <ul
+    className="
+      absolute desktop:w-[32vw] w-full desktop:!rounded-[0.8vw] !rounded-[3vw] 
+      bg-Neutral600 border border-gray-300 
+      list-none m-0 desktop:p-[0.5vw] z-50 left-1/2 desktop:-translate-x-[20.4vw] top-1/2 desktop:-translate-y-[14.5vw]
+    "
+  >
+    {suggestions.map((CITY) => (
+      <li
+        key={CITY.id}
+        className="
+          px-3 py-2 cursor-pointer 
+          hover:bg-Neutral300 transition
+        "
+        onClick={() => {
+          setQuery(`${CITY.city}, ${CITY.country}`);
+          console.log(query);
+          setCityName(CITY.city.trim());
+          setCity("");
+          setSearchInProgress(true)
+          setSuggestions([]);
+          // 👉 trigger weather fetch here with city.latitude & city.longitude
+        }}
+      >
+        {CITY.city}, {CITY.country}
+      </li>
+    ))}
+  </ul>
+)}
 
             <section className={` ${searchInProgress ? "block" : "hidden"}`}>
               <div

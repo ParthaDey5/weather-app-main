@@ -1,19 +1,7 @@
 @config "../tailwind.config.js";
 @import "tailwindcss";
 
-@layer utilities {
-  .dropdown-opened {
-    transform: scaleY(1);
-    transform-origin: top; /* 👈 this is the key */
-    transition: 0.3s ease-in-out;
-  }
 
-  .dropdown-closed {
-    transform: scaleY(0);
-    transform-origin: top; /* 👈 keep it consistent */
-    transition: 0.3s ease-in-out;
-  }
-}
 
 @layer base {
   @font-face {

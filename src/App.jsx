@@ -39,6 +39,7 @@ function App() {
   const [country, setCountry] = useState("");
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
+  
 
   const weatherCodeDaily = apiData?.daily.weather_code;
   const weatherCodeCurrent = apiData?.current.weather_code;
@@ -142,7 +143,9 @@ function App() {
           .then((res) => res.json())
           .then((data) => {
             setApitime(data.current.time);
-            setApparentTemperature(Math.round(data.current.apparent_temperature));
+            setApparentTemperature(
+              Math.round(data.current.apparent_temperature)
+            );
             setTemperature(Math.round(data.current.temperature_2m)),
               setWind(Math.round(data.current.wind_speed_10m)),
               setHumidity(Math.round(data.current.relative_humidity_2m));
@@ -152,9 +155,8 @@ function App() {
           })
           .catch((err) => {
             console.log(err);
-          })  
-      }, 1000);
-      
+          });
+      }, 500);
     }
   }, [
     cityName,
@@ -168,30 +170,33 @@ function App() {
     loading,
   ]);
 
-  const fetchCities = async (q) => {
-    if (q.length < 2) {
-      setSuggestions([]);
-      return;
-    }
-    const url = `https://wft-geo-db.p.rapidapi.com/v1/geo/cities?namePrefix=${query}&limit=5`;
-    const options = {
-      method: "GET",
-      headers: {
-        "x-rapidapi-host": "wft-geo-db.p.rapidapi.com",
-        "x-rapidapi-key": "e3e60a2ec5msh19c61c62e1a129ap1a1646jsn0ff8d34232ae",
-      },
+  
+    const fetchCities = async (q) => {
+      if (q.length < 1) {
+        setSuggestions([]);
+        return;
+      }
+      const url = `https://wft-geo-db.p.rapidapi.com/v1/geo/cities?namePrefix=${query}&limit=5&sort=-population&minPopulation=100000`;
+      const options = {
+        method: "GET",
+        headers: {
+          "x-rapidapi-host": "wft-geo-db.p.rapidapi.com",
+          "x-rapidapi-key": "e3e60a2ec5msh19c61c62e1a129ap1a1646jsn0ff8d34232ae",
+        },
+      };
+      try {
+        const response = await fetch(url, options);
+        const result = await response.json();
+        
+        setSuggestions(result.data);
+        console.log(suggestions);
+      } catch (error) {
+        console.error(error);
+      }
     };
-    try {
-      const response = await fetch(url, options);
-      const result = await response.json();
-      console.log(result.data);
-      setSuggestions(result.data);
-      console.log(suggestions);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
+    
+  
+  
   const formattedWeekdays = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(apitime);
     d.setDate(d.getDate() + i);
@@ -218,7 +223,11 @@ function App() {
             >
               <Units className="desktop:w-[1vw] w-[3.2vw] h-fit pointer !my-auto" />{" "}
               Units
-              <Dropdown className={` transition-transform duration-300 ease-out desktop:w-[0.7vw] w-[2.6vw] h-fit pointer ${dropdown1? "rotate-180": ""}`} />
+              <Dropdown
+                className={` transition-transform duration-300 ease-out desktop:w-[0.7vw] w-[2.6vw] h-fit pointer ${
+                  dropdown1 ? "rotate-180" : ""
+                }`}
+              />
             </span>
 
             <div className="relative z-50">
@@ -314,20 +323,51 @@ function App() {
               <span className="absolute desktop:left-[3vw] left-[5vw] top-1/2 desktop:-translate-y-1/2 -translate-y-[5vw]">
                 <Search className="!text-Neutral300 desktop:w-[1.19vw] w-[5vw] h-fit" />
               </span>
-              <input
-                className="smallTxt "
-                type="text"
-                value={city}
-                onChange={(e) => {
-                  setQuery(e.target.value);
-                  fetchCities(e.target.value);
-                  setCity(e.target.value),
-                    setLoading(false),
-                    setSearchInProgress(false);
-                }}
-                placeholder="Search for a place..."
-                required
-              />{" "}
+              <span className="w-full">
+                <input
+                  className="smallTxt "
+                  type="text"
+                  value={city}
+                  onChange={(e) => {
+                    setQuery(e.target.value);
+                    fetchCities(e.target.value);
+                    setCity(e.target.value),
+                      setLoading(false),
+                      setSearchInProgress(false);
+                  }}
+                  placeholder="Search for a place..."
+                  required
+                />{" "}
+                <ul
+              className={`absolute left-0 ${suggestions?.length > 0 ? "block" : "hidden"}
+       desktop:w-[32vw] w-[90%] desktop:!rounded-[0.8vw] !rounded-[3vw] 
+      bg-Neutral600 border border-Neutral300 
+      list-none desktop:mt-[1vw] mt-[3vw] desktop:p-[0.5vw] p-[3vw] z-50
+    `}
+            >
+              {suggestions?.map((CITY) => (
+                <li
+                  key={CITY.id}
+                  className="smallTxt
+          px-3 py-2 cursor-pointer 
+          hover:bg-Neutral300 transition
+        "
+                  onClick={() => {
+                    setQuery(`${CITY.city}, ${CITY.country}`);
+                    console.log(query);
+                    setCityName(CITY.city.trim());
+                    setCity("");
+                    setSearchInProgress(true);
+                    setSuggestions([]);
+                    // 👉 trigger weather fetch here with city.latitude & city.longitude
+                  }}
+                >
+                  {CITY.city}, {CITY.country}
+                </li>
+              ))}
+            </ul>
+
+              </span>
               <button
                 className="smallTxt"
                 type="button"
@@ -341,36 +381,6 @@ function App() {
                 Search
               </button>
             </section>
-            {suggestions?.length > 0 && (
-  <ul
-    className="
-      absolute desktop:w-[32vw] w-full desktop:!rounded-[0.8vw] !rounded-[3vw] 
-      bg-Neutral600 border border-gray-300 
-      list-none m-0 desktop:p-[0.5vw] z-50 left-1/2 desktop:-translate-x-[20.4vw] top-1/2 desktop:-translate-y-[14.5vw]
-    "
-  >
-    {suggestions.map((CITY) => (
-      <li
-        key={CITY.id}
-        className="
-          px-3 py-2 cursor-pointer 
-          hover:bg-Neutral300 transition
-        "
-        onClick={() => {
-          setQuery(`${CITY.city}, ${CITY.country}`);
-          console.log(query);
-          setCityName(CITY.city.trim());
-          setCity("");
-          setSearchInProgress(true)
-          setSuggestions([]);
-          // 👉 trigger weather fetch here with city.latitude & city.longitude
-        }}
-      >
-        {CITY.city}, {CITY.country}
-      </li>
-    ))}
-  </ul>
-)}
 
             <section className={` ${searchInProgress ? "block" : "hidden"}`}>
               <div

@@ -39,7 +39,6 @@ function App() {
   const [country, setCountry] = useState("");
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
-  
 
   const weatherCodeDaily = apiData?.daily.weather_code;
   const weatherCodeCurrent = apiData?.current.weather_code;
@@ -170,33 +169,29 @@ function App() {
     loading,
   ]);
 
-  
-    const fetchCities = async (q) => {
-      if (q.length < 1) {
-        setSuggestions([]);
-        return;
-      }
-      const url = `https://wft-geo-db.p.rapidapi.com/v1/geo/cities?namePrefix=${query}&limit=5&sort=-population&minPopulation=100000`;
-      const options = {
-        method: "GET",
-        headers: {
-          "x-rapidapi-host": "wft-geo-db.p.rapidapi.com",
-          "x-rapidapi-key": "e3e60a2ec5msh19c61c62e1a129ap1a1646jsn0ff8d34232ae",
-        },
-      };
-      try {
-        const response = await fetch(url, options);
-        const result = await response.json();
-        
-        setSuggestions(result.data);
-        console.log(suggestions);
-      } catch (error) {
-        console.error(error);
-      }
+  const fetchCities = async (q) => {
+    if (q.length < 1) {
+      setSuggestions([]);
+      return;
+    }
+    const url = `https://wft-geo-db.p.rapidapi.com/v1/geo/cities?namePrefix=${query}&limit=5&sort=-population&minPopulation=100000`;
+    const options = {
+      method: "GET",
+      headers: {
+        "x-rapidapi-host": "wft-geo-db.p.rapidapi.com",
+        "x-rapidapi-key": "e3e60a2ec5msh19c61c62e1a129ap1a1646jsn0ff8d34232ae",
+      },
     };
-    
-  
-  
+    try {
+      const response = await fetch(url, options);
+      const result = await response.json();
+
+      setSuggestions(result.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const formattedWeekdays = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(apitime);
     d.setDate(d.getDate() + i);
@@ -339,34 +334,35 @@ function App() {
                   required
                 />{" "}
                 <ul
-              className={`absolute left-0 ${suggestions?.length > 0 ? "block" : "hidden"}
+                  className={`absolute left-0 ${
+                    suggestions?.length > 0 ? "block" : "hidden"
+                  }
        desktop:w-[32vw] w-[90%] desktop:!rounded-[0.8vw] !rounded-[3vw] 
       bg-Neutral600 border border-Neutral300 
       list-none desktop:mt-[1vw] mt-[3vw] desktop:p-[0.5vw] p-[3vw] z-50
     `}
-            >
-              {suggestions?.map((CITY) => (
-                <li
-                  key={CITY.id}
-                  className="smallTxt
+                >
+                  {suggestions?.map((CITY) => (
+                    <li
+                      key={CITY.id}
+                      className="smallTxt
           px-3 py-2 cursor-pointer 
           hover:bg-Neutral300 transition
         "
-                  onClick={() => {
-                    setQuery(`${CITY.city}, ${CITY.country}`);
-                    console.log(query);
-                    setCityName(CITY.city.trim());
-                    setCity("");
-                    setSearchInProgress(true);
-                    setSuggestions([]);
-                    // 👉 trigger weather fetch here with city.latitude & city.longitude
-                  }}
-                >
-                  {CITY.city}, {CITY.country}
-                </li>
-              ))}
-            </ul>
+                      onClick={() => {
+                        setQuery(`${CITY.city}, ${CITY.country}`);
 
+                        setCityName(CITY.city.trim());
+                        setCity("");
+                        setSearchInProgress(true);
+                        setSuggestions([]);
+                        // 👉 trigger weather fetch here with city.latitude & city.longitude
+                      }}
+                    >
+                      {CITY.city}, {CITY.country}
+                    </li>
+                  ))}
+                </ul>
               </span>
               <button
                 className="smallTxt"
